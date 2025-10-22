@@ -1,0 +1,752 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+using Microsoft.Win32;
+
+namespace BobMediaPlayer
+{
+    public partial class MainWindow : Window
+    {
+        private DispatcherTimer timer;
+        private bool isPlaying = false;
+        private bool isDraggingSlider = false;
+        private string? currentMediaPath;
+        private MediaType currentMediaType = MediaType.None;
+        private AudioPlayerWindow? audioWindow;
+        private bool isFullscreen = false;
+        private WindowState previousWindowState;
+        private WindowStyle previousWindowStyle;
+        private DispatcherTimer hideControlsTimer;
+        private DispatcherTimer hideCursorTimer;
+        private Point lastMousePosition;
+        private bool controlsVisible = true;
+        private double playbackSpeed = 1.0;
+        private List<SubtitleEntry> subtitles = new List<SubtitleEntry>();
+        private string? currentSubtitlePath;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            
+            timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromMilliseconds(100);
+            timer.Tick += Timer_Tick;
+            
+            // Timer to hide controls after 3 seconds of no mouse movement
+            hideControlsTimer = new DispatcherTimer();
+            hideControlsTimer.Interval = TimeSpan.FromSeconds(3);
+            hideControlsTimer.Tick += HideControlsTimer_Tick;
+            
+            // Timer to hide cursor after 2 seconds of no mouse movement
+            hideCursorTimer = new DispatcherTimer();
+            hideCursorTimer.Interval = TimeSpan.FromSeconds(2);
+            hideCursorTimer.Tick += HideCursorTimer_Tick;
+            
+            // Track mouse movement
+            this.MouseMove += Window_MouseMove;
+        }
+
+        private void OpenFile_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Media Files|*.mp3;*.wav;*.m4a;*.wma;*.mp4;*.avi;*.mkv;*.mov;*.wmv;*.jpg;*.jpeg;*.png;*.gif;*.bmp|" +
+                        "Audio Files|*.mp3;*.wav;*.m4a;*.wma|" +
+                        "Video Files|*.mp4;*.avi;*.mkv;*.mov;*.wmv|" +
+                        "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp|" +
+                        "All Files|*.*"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                LoadMedia(openFileDialog.FileName);
+            }
+        }
+
+        private void Window_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files.Length > 0)
+                {
+                    LoadMedia(files[0]);
+                }
+            }
+        }
+
+        private void LoadMedia(string filePath)
+        {
+            try
+            {
+                Stop_Click(null!, null!);
+                
+                currentMediaPath = filePath;
+                string extension = Path.GetExtension(filePath).ToLower();
+                
+                // Determine media type
+                if (IsAudioFile(extension))
+                {
+                    currentMediaType = MediaType.Audio;
+                    LoadAudio(filePath);
+                }
+                else if (IsVideoFile(extension))
+                {
+                    currentMediaType = MediaType.Video;
+                    LoadVideo(filePath);
+                }
+                else if (IsImageFile(extension))
+                {
+                    currentMediaType = MediaType.Image;
+                    LoadImage(filePath);
+                }
+                else
+                {
+                    MessageBox.Show("Unsupported file format.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                WelcomeScreen.Visibility = Visibility.Collapsed;
+                MediaInfoText.Text = Path.GetFileName(filePath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading media: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void LoadAudio(string filePath)
+        {
+            // Close main window video/image
+            VideoPlayer.Visibility = Visibility.Collapsed;
+            ImageViewer.Visibility = Visibility.Collapsed;
+            
+            // Open audio in compact window
+            if (audioWindow != null)
+            {
+                audioWindow.Close();
+            }
+            
+            audioWindow = new AudioPlayerWindow(filePath);
+            audioWindow.Owner = this;
+            audioWindow.Show();
+            
+            // Hide main window
+            this.Hide();
+            
+            // When audio window closes, show main window again
+            audioWindow.Closed += (s, e) =>
+            {
+                this.Show();
+                WelcomeScreen.Visibility = Visibility.Visible;
+                currentMediaPath = null;
+                currentMediaType = MediaType.None;
+            };
+        }
+
+        private void LoadVideo(string filePath)
+        {
+            // Show main window if hidden
+            this.Show();
+            
+            VideoPlayer.Visibility = Visibility.Visible;
+            ImageViewer.Visibility = Visibility.Collapsed;
+            
+            VideoPlayer.Source = new Uri(filePath);
+            VideoPlayer.Volume = VolumeSlider.Value / 100.0;
+            
+            PlayPauseButton.IsEnabled = true;
+            StopButton.IsEnabled = true;
+            FullscreenButton.IsEnabled = true;
+            JumpBackButton.IsEnabled = true;
+            JumpForwardButton.IsEnabled = true;
+            
+            // Load subtitles if available
+            LoadSubtitles(filePath);
+        }
+
+        private void LoadImage(string filePath)
+        {
+            // Show main window if hidden
+            this.Show();
+            
+            VideoPlayer.Visibility = Visibility.Collapsed;
+            ImageViewer.Visibility = Visibility.Visible;
+            
+            var bitmap = new System.Windows.Media.Imaging.BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(filePath);
+            bitmap.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+            bitmap.EndInit();
+            
+            ImageViewer.Source = bitmap;
+            
+            // Images don't have playback controls
+            PlayPauseButton.IsEnabled = false;
+            StopButton.IsEnabled = false;
+            TimelineSlider.IsEnabled = false;
+            CurrentTimeText.Text = "00:00";
+            TotalTimeText.Text = "00:00";
+            FullscreenButton.IsEnabled = true;
+        }
+
+        private void PlayPause_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentMediaType == MediaType.Video)
+            {
+                if (isPlaying)
+                {
+                    VideoPlayer.Pause();
+                    timer.Stop();
+                    PlayPauseButton.Content = "►";
+                    isPlaying = false;
+                }
+                else
+                {
+                    VideoPlayer.Play();
+                    timer.Start();
+                    PlayPauseButton.Content = "❚❚";
+                    isPlaying = true;
+                }
+            }
+        }
+
+        private void Stop_Click(object? sender, RoutedEventArgs? e)
+        {
+            if (currentMediaType == MediaType.Video)
+            {
+                VideoPlayer.Stop();
+                timer.Stop();
+                PlayPauseButton.Content = "►";
+                isPlaying = false;
+                TimelineSlider.Value = 0;
+                CurrentTimeText.Text = "00:00";
+            }
+        }
+
+        private void Previous_Click(object sender, RoutedEventArgs e)
+        {
+            // Placeholder for playlist functionality
+        }
+
+        private void Next_Click(object sender, RoutedEventArgs e)
+        {
+            // Placeholder for playlist functionality
+        }
+
+        private void JumpBack_Click(object sender, RoutedEventArgs e)
+        {
+            JumpBackward();
+        }
+
+        private void JumpForward_Click(object sender, RoutedEventArgs e)
+        {
+            JumpForward();
+        }
+
+        private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (VideoPlayer != null)
+            {
+                VideoPlayer.Volume = VolumeSlider.Value / 100.0;
+            }
+        }
+
+        private void VideoPlayer_MediaOpened(object sender, RoutedEventArgs e)
+        {
+            if (VideoPlayer.NaturalDuration.HasTimeSpan)
+            {
+                TimelineSlider.Maximum = VideoPlayer.NaturalDuration.TimeSpan.TotalSeconds;
+                TotalTimeText.Text = FormatTime(VideoPlayer.NaturalDuration.TimeSpan);
+                TimelineSlider.IsEnabled = true;
+            }
+        }
+
+        private void VideoPlayer_MediaEnded(object sender, RoutedEventArgs e)
+        {
+
+private void JumpBack_Click(object sender, RoutedEventArgs e)
+{
+    JumpBackward();
+}
+
+private void JumpForward_Click(object sender, RoutedEventArgs e)
+{
+    JumpForward();
+}
+            isDraggingSlider = true;
+        }
+
+        private void TimelineSlider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            isDraggingSlider = false;
+            if (currentMediaType == MediaType.Video)
+            {
+                VideoPlayer.Position = TimeSpan.FromSeconds(TimelineSlider.Value);
+            }
+        }
+
+        private void TimelineSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (isDraggingSlider && currentMediaType == MediaType.Video)
+            {
+                CurrentTimeText.Text = FormatTime(TimeSpan.FromSeconds(TimelineSlider.Value));
+            }
+        }
+
+        private void TimelineSlider_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (currentMediaType == MediaType.Video && TimelineSlider.IsEnabled)
+            {
+                var slider = (Slider)sender;
+                var position = e.GetPosition(slider);
+                var percentage = position.X / slider.ActualWidth;
+                var newValue = percentage * slider.Maximum;
+                
+                slider.Value = newValue;
+                VideoPlayer.Position = TimeSpan.FromSeconds(newValue);
+            }
+        }
+
+        private string FormatTime(TimeSpan time)
+        {
+            if (time.TotalHours >= 1)
+            {
+                return time.ToString(@"hh\:mm\:ss");
+            }
+            return time.ToString(@"mm\:ss");
+        }
+
+        private bool IsAudioFile(string extension)
+        {
+            return extension == ".mp3" || extension == ".wav" || extension == ".m4a" || extension == ".wma";
+        }
+
+        private bool IsVideoFile(string extension)
+        {
+            return extension == ".mp4" || extension == ".avi" || extension == ".mkv" || 
+                   extension == ".mov" || extension == ".wmv";
+        }
+
+        private bool IsImageFile(string extension)
+        {
+            return extension == ".jpg" || extension == ".jpeg" || extension == ".png" || 
+                   extension == ".gif" || extension == ".bmp";
+        }
+
+        private void Fullscreen_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleFullscreen();
+        }
+
+        private void Media_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                ToggleFullscreen();
+            }
+        }
+
+        private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.F11)
+            {
+                ToggleFullscreen();
+                e.Handled = true;
+            }
+            else if (e.Key == System.Windows.Input.Key.Escape && isFullscreen)
+            {
+                ExitFullscreen();
+                e.Handled = true;
+            }
+            else if (e.Key == System.Windows.Input.Key.Space && (currentMediaType == MediaType.Video))
+            {
+                PlayPause_Click(sender, new RoutedEventArgs());
+                e.Handled = true;
+            }
+            else if (e.Key == System.Windows.Input.Key.Right && currentMediaType == MediaType.Video)
+            {
+                // Jump forward 10 seconds
+                JumpForward();
+                e.Handled = true;
+            }
+            else if (e.Key == System.Windows.Input.Key.Left && currentMediaType == MediaType.Video)
+            {
+                // Jump backward 10 seconds
+                JumpBackward();
+                e.Handled = true;
+            }
+            else if (e.Key == System.Windows.Input.Key.Up && currentMediaType == MediaType.Video)
+            {
+                // Volume up
+                VolumeSlider.Value = Math.Min(100, VolumeSlider.Value + 5);
+                ShowOSD($"Volume: {(int)VolumeSlider.Value}%");
+                e.Handled = true;
+            }
+            else if (e.Key == System.Windows.Input.Key.Down && currentMediaType == MediaType.Video)
+            {
+                // Volume down
+                VolumeSlider.Value = Math.Max(0, VolumeSlider.Value - 5);
+                ShowOSD($"Volume: {(int)VolumeSlider.Value}%");
+                e.Handled = true;
+            }
+            else if (e.Key == System.Windows.Input.Key.M)
+            {
+                // Mute/Unmute
+                ToggleMute();
+                e.Handled = true;
+            }
+            else if (e.Key == System.Windows.Input.Key.OemPlus || e.Key == System.Windows.Input.Key.Add)
+            {
+                // Increase playback speed
+                IncreaseSpeed();
+                e.Handled = true;
+            }
+            else if (e.Key == System.Windows.Input.Key.OemMinus || e.Key == System.Windows.Input.Key.Subtract)
+            {
+                // Decrease playback speed
+                DecreaseSpeed();
+                e.Handled = true;
+            }
+        }
+
+        private void ToggleFullscreen()
+        {
+            if (isFullscreen)
+            {
+                ExitFullscreen();
+            }
+            else
+            {
+                EnterFullscreen();
+            }
+        }
+
+        private void EnterFullscreen()
+        {
+            if (currentMediaType == MediaType.Video || currentMediaType == MediaType.Image)
+            {
+                previousWindowState = WindowState;
+                previousWindowStyle = WindowStyle;
+                
+                WindowStyle = WindowStyle.None;
+                WindowState = WindowState.Maximized;
+                
+                // Hide control panel initially
+                ControlPanel.Visibility = Visibility.Collapsed;
+                controlsVisible = false;
+                
+                isFullscreen = true;
+                FullscreenButton.Content = "[ ⛶ ]";
+                
+                // Start timers for auto-hide
+                hideControlsTimer.Start();
+                hideCursorTimer.Start();
+            }
+        }
+
+        private void ExitFullscreen()
+        {
+            if (isFullscreen)
+            {
+                WindowStyle = previousWindowStyle;
+                WindowState = previousWindowState;
+                
+                // Show control panel
+                ControlPanel.Visibility = Visibility.Visible;
+                controlsVisible = true;
+                
+                isFullscreen = false;
+                FullscreenButton.Content = "[ ⛶ ]";
+                
+                // Stop auto-hide timers
+                hideControlsTimer.Stop();
+                hideCursorTimer.Stop();
+                
+                // Show cursor
+                this.Cursor = System.Windows.Input.Cursors.Arrow;
+            }
+        }
+
+        private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (isFullscreen)
+            {
+                Point currentPosition = e.GetPosition(this);
+                
+                // Check if mouse actually moved
+                if (currentPosition != lastMousePosition)
+                {
+                    lastMousePosition = currentPosition;
+                    
+                    // Show cursor
+                    this.Cursor = System.Windows.Input.Cursors.Arrow;
+                    hideCursorTimer.Stop();
+                    hideCursorTimer.Start();
+                    
+                    // Show controls if mouse is near bottom
+                    if (currentPosition.Y > this.ActualHeight - 150)
+                    {
+                        ShowControls();
+                        hideControlsTimer.Stop();
+                        hideControlsTimer.Start();
+                    }
+                    else
+                    {
+                        // Hide controls if mouse is not near bottom
+                        hideControlsTimer.Stop();
+                        hideControlsTimer.Start();
+                    }
+                }
+            }
+        }
+
+        private void HideControlsTimer_Tick(object? sender, EventArgs e)
+        {
+            if (isFullscreen && controlsVisible)
+            {
+                HideControls();
+            }
+        }
+
+        private void HideCursorTimer_Tick(object? sender, EventArgs e)
+        {
+            if (isFullscreen)
+            {
+                this.Cursor = System.Windows.Input.Cursors.None;
+            }
+        }
+
+        private void ShowControls()
+        {
+            if (!controlsVisible && isFullscreen)
+            {
+                ControlPanel.Visibility = Visibility.Visible;
+                controlsVisible = true;
+            }
+        }
+
+        private void HideControls()
+        {
+            if (controlsVisible && isFullscreen)
+            {
+                ControlPanel.Visibility = Visibility.Collapsed;
+                controlsVisible = false;
+            }
+        }
+
+        private void JumpForward()
+        {
+            if (currentMediaType == MediaType.Video && VideoPlayer.Source != null)
+            {
+                var newPosition = VideoPlayer.Position.Add(TimeSpan.FromSeconds(10));
+                if (newPosition < VideoPlayer.NaturalDuration.TimeSpan)
+                {
+                    VideoPlayer.Position = newPosition;
+                    ShowOSD("+10s");
+                }
+            }
+        }
+
+        private void JumpBackward()
+        {
+            if (currentMediaType == MediaType.Video && VideoPlayer.Source != null)
+            {
+                var newPosition = VideoPlayer.Position.Subtract(TimeSpan.FromSeconds(10));
+                if (newPosition < TimeSpan.Zero)
+                    newPosition = TimeSpan.Zero;
+                VideoPlayer.Position = newPosition;
+                ShowOSD("-10s");
+            }
+        }
+
+        private double previousVolume = 50;
+        private void ToggleMute()
+        {
+            if (VolumeSlider.Value > 0)
+            {
+                previousVolume = VolumeSlider.Value;
+                VolumeSlider.Value = 0;
+                ShowOSD("Muted");
+            }
+            else
+            {
+                VolumeSlider.Value = previousVolume;
+                ShowOSD($"Volume: {(int)previousVolume}%");
+            }
+        }
+
+        private void IncreaseSpeed()
+        {
+            if (currentMediaType == MediaType.Video)
+            {
+                playbackSpeed = Math.Min(2.0, playbackSpeed + 0.25);
+                VideoPlayer.SpeedRatio = playbackSpeed;
+                ShowOSD($"Speed: {playbackSpeed:F2}x");
+            }
+        }
+
+        private void DecreaseSpeed()
+        {
+            if (currentMediaType == MediaType.Video)
+            {
+                playbackSpeed = Math.Max(0.25, playbackSpeed - 0.25);
+                VideoPlayer.SpeedRatio = playbackSpeed;
+                ShowOSD($"Speed: {playbackSpeed:F2}x");
+            }
+        }
+
+        private DispatcherTimer? osdTimer;
+        private void ShowOSD(string message)
+        {
+            if (OSDText != null)
+            {
+                OSDText.Text = message;
+                OSDPanel.Visibility = Visibility.Visible;
+                
+                osdTimer?.Stop();
+                osdTimer = new DispatcherTimer();
+                osdTimer.Interval = TimeSpan.FromSeconds(1.5);
+                osdTimer.Tick += (s, e) =>
+                {
+                    OSDPanel.Visibility = Visibility.Collapsed;
+                    osdTimer.Stop();
+                };
+                osdTimer.Start();
+            }
+        }
+
+        private void LoadSubtitles(string videoPath)
+        {
+            // Try to find .srt file with same name as video
+            string srtPath = Path.ChangeExtension(videoPath, ".srt");
+            if (File.Exists(srtPath))
+            {
+                currentSubtitlePath = srtPath;
+                subtitles = ParseSRT(srtPath);
+                if (subtitles.Count > 0)
+                {
+                    ShowOSD($"Subtitles loaded: {subtitles.Count} entries");
+                }
+            }
+        }
+
+        private List<SubtitleEntry> ParseSRT(string filePath)
+        {
+            var entries = new List<SubtitleEntry>();
+            try
+            {
+                var lines = File.ReadAllLines(filePath);
+                SubtitleEntry? currentEntry = null;
+                var textLines = new List<string>();
+
+                foreach (var line in lines)
+                {
+                    if (string.IsNullOrWhiteSpace(line))
+                    {
+                        if (currentEntry != null && textLines.Count > 0)
+                        {
+                            currentEntry.Text = string.Join("\n", textLines);
+                            entries.Add(currentEntry);
+                            currentEntry = null;
+                            textLines.Clear();
+                        }
+                    }
+                    else if (int.TryParse(line.Trim(), out _))
+                    {
+                        currentEntry = new SubtitleEntry();
+                    }
+                    else if (line.Contains("-->"))
+                    {
+                        var times = line.Split(new[] { "-->" }, StringSplitOptions.None);
+                        if (times.Length == 2 && currentEntry != null)
+                        {
+                            currentEntry.StartTime = ParseSRTTime(times[0].Trim());
+                            currentEntry.EndTime = ParseSRTTime(times[1].Trim());
+                        }
+                    }
+                    else if (currentEntry != null)
+                    {
+                        textLines.Add(line.Trim());
+                    }
+                }
+
+                // Add last entry if exists
+                if (currentEntry != null && textLines.Count > 0)
+                {
+                    currentEntry.Text = string.Join("\n", textLines);
+                    entries.Add(currentEntry);
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowOSD($"Error loading subtitles: {ex.Message}");
+            }
+            return entries;
+        }
+
+        private TimeSpan ParseSRTTime(string timeString)
+        {
+            // Format: 00:00:20,000
+            timeString = timeString.Replace(',', '.');
+            if (TimeSpan.TryParse(timeString, out TimeSpan result))
+            {
+                return result;
+            }
+            return TimeSpan.Zero;
+        }
+
+        private void UpdateSubtitles()
+        {
+            if (subtitles.Count == 0 || currentMediaType != MediaType.Video)
+            {
+                SubtitlePanel.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            var currentTime = VideoPlayer.Position;
+            var currentSubtitle = subtitles.FirstOrDefault(s => 
+                currentTime >= s.StartTime && currentTime <= s.EndTime);
+
+            if (currentSubtitle != null)
+            {
+                SubtitleText.Text = currentSubtitle.Text;
+                SubtitlePanel.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                SubtitlePanel.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            hideControlsTimer?.Stop();
+            hideCursorTimer?.Stop();
+            osdTimer?.Stop();
+            audioWindow?.Close();
+        }
+    }
+
+    public enum MediaType
+    {
+        None,
+        Audio,
+        Video,
+        Image
+    }
+
+    public class SubtitleEntry
+    {
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
+        public string Text { get; set; } = string.Empty;
+    }
+}

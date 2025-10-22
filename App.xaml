@@ -167,5 +167,10 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Global default Window icon -->
+        <Style TargetType="Window">
+            <Setter Property="Icon" Value="pack://application:,,,/icon.ico"/>
+        </Style>
     </Application.Resources>
 </Application>
