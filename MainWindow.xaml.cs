@@ -54,6 +54,66 @@ namespace BobMediaPlayer
             this.MouseMove += Window_MouseMove;
         }
 
+        private void ApplyImageUIMode()
+        {
+            // Hide timeline and playback/navigation controls for images
+            TimelinePanel.Visibility = Visibility.Collapsed;
+            ControlButtonsPanel.Visibility = Visibility.Visible; // Keep container but hide items selectively
+
+            OpenButton.Visibility = Visibility.Visible;
+            FullscreenButton.Visibility = Visibility.Visible;
+            FullscreenButton.IsEnabled = true;
+
+            // Hide playback-related controls
+            PlayPauseButton.Visibility = Visibility.Collapsed;
+            JumpBackButton.Visibility = Visibility.Collapsed;
+            JumpForwardButton.Visibility = Visibility.Collapsed;
+            SubtitleButton.Visibility = Visibility.Collapsed;
+            SettingsButton.Visibility = Visibility.Collapsed;
+
+            // Navigation may be considered unnecessary for single image view; hide to simplify
+            PreviousButton.Visibility = Visibility.Collapsed;
+            NextButton.Visibility = Visibility.Collapsed;
+
+            // Hide volume for images
+            VolumePanel.Visibility = Visibility.Collapsed;
+            SeparatorAfterNav.Visibility = Visibility.Collapsed;
+            SeparatorBeforeVolume.Visibility = Visibility.Collapsed;
+
+            // Subtitle overlay off
+            SubtitlePanel.Visibility = Visibility.Collapsed;
+        }
+
+        private void ApplyVideoUIMode()
+        {
+            // Show timeline and all relevant controls
+            TimelinePanel.Visibility = Visibility.Visible;
+            ControlButtonsPanel.Visibility = Visibility.Visible;
+
+            OpenButton.Visibility = Visibility.Visible;
+            FullscreenButton.Visibility = Visibility.Visible;
+            FullscreenButton.IsEnabled = true;
+
+            PlayPauseButton.Visibility = Visibility.Visible;
+            PlayPauseButton.IsEnabled = true;
+            JumpBackButton.Visibility = Visibility.Visible;
+            JumpBackButton.IsEnabled = true;
+            JumpForwardButton.Visibility = Visibility.Visible;
+            JumpForwardButton.IsEnabled = true;
+
+            SubtitleButton.Visibility = Visibility.Visible;
+            SubtitleButton.IsEnabled = true;
+            SettingsButton.Visibility = Visibility.Visible;
+            SettingsButton.IsEnabled = true;
+
+            PreviousButton.Visibility = Visibility.Visible;
+            NextButton.Visibility = Visibility.Visible;
+
+            VolumePanel.Visibility = Visibility.Visible;
+            SeparatorAfterNav.Visibility = Visibility.Visible;
+            SeparatorBeforeVolume.Visibility = Visibility.Visible;
+        }
+
         private void OpenFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -166,12 +226,7 @@ namespace BobMediaPlayer
             VideoPlayer.Source = new Uri(filePath);
             VideoPlayer.Volume = VolumeSlider.Value / 100.0;
             
-            PlayPauseButton.IsEnabled = true;
-            FullscreenButton.IsEnabled = true;
-            JumpBackButton.IsEnabled = true;
-            JumpForwardButton.IsEnabled = true;
-            SubtitleButton.IsEnabled = true;
-            SettingsButton.IsEnabled = true;
+            ApplyVideoUIMode();
             
             // Load subtitles if available
             LoadSubtitles(filePath);
@@ -202,11 +257,10 @@ namespace BobMediaPlayer
             ImageViewer.Source = bitmap;
             
             // Images don't have playback controls
-            PlayPauseButton.IsEnabled = false;
             TimelineSlider.IsEnabled = false;
             CurrentTimeText.Text = "00:00";
             TotalTimeText.Text = "00:00";
-            FullscreenButton.IsEnabled = true;
+            ApplyImageUIMode();
             
             currentMediaType = MediaType.Image;
         }

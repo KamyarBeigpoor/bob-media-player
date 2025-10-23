@@ -246,7 +246,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Timeline -->
-                <Grid Grid.Row="0" Margin="0,0,0,18">
+                <Grid x:Name="TimelinePanel" Grid.Row="0" Margin="0,0,0,18">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
@@ -297,7 +297,7 @@
                           TextTrimming="CharacterEllipsis"/>
 
                 <!-- Control Buttons -->
-                <StackPanel Grid.Row="2" 
+                <StackPanel x:Name="ControlButtonsPanel" Grid.Row="2" 
                            Orientation="Horizontal" 
                            HorizontalAlignment="Center">
                     <Button x:Name="OpenButton" 
@@ -358,7 +358,7 @@
                            FontSize="11"
                            IsEnabled="False"/>
 
-                    <Border Width="2" 
+                    <Border x:Name="SeparatorAfterNav" Width="2" 
                            Background="{StaticResource BorderHighlight}"
                            Margin="18,0"/>
                     
@@ -382,11 +382,11 @@
                            FontSize="11"
                            IsEnabled="False"/>
 
-                    <Border Width="2" 
+                    <Border x:Name="SeparatorBeforeVolume" Width="2" 
                            Background="{StaticResource BorderHighlight}"
                            Margin="18,0"/>
 
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
+                    <StackPanel x:Name="VolumePanel" Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
                         <TextBlock Text="VOL" 
                                   FontSize="11" 
                                   FontFamily="Consolas"
