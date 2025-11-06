@@ -111,20 +111,21 @@
                               FontFamily="Consolas"
                               VerticalAlignment="Center"
                               Margin="0,0,8,0"/>
-                    <Button Content="0.25x" Click="SetSpeed_Click" Tag="0.25" Style="{StaticResource TechButton}" 
-                           Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
-                    <Button Content="0.5x" Click="SetSpeed_Click" Tag="0.5" Style="{StaticResource TechButton}" 
-                           Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
-                    <Button Content="0.75x" Click="SetSpeed_Click" Tag="0.75" Style="{StaticResource TechButton}" 
-                           Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
-                    <Button Content="1.0x" Click="SetSpeed_Click" Tag="1.0" Style="{StaticResource TechButton}" 
-                           Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
-                    <Button Content="1.25x" Click="SetSpeed_Click" Tag="1.25" Style="{StaticResource TechButton}" 
-                           Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
-                    <Button Content="1.5x" Click="SetSpeed_Click" Tag="1.5" Style="{StaticResource TechButton}" 
-                           Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
-                    <Button Content="2.0x" Click="SetSpeed_Click" Tag="2.0" Style="{StaticResource TechButton}" 
-                           Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
+                    <ComboBox x:Name="SpeedComboBox"
+                             Width="80"
+                             FontSize="9"
+                             Style="{StaticResource TechComboBox}"
+                             VerticalAlignment="Center"
+                             SelectionChanged="SpeedComboBox_SelectionChanged"
+                             SelectedIndex="3">
+                        <ComboBoxItem Content="0.25x" Tag="0.25" Style="{StaticResource TechComboBoxItem}"/>
+                        <ComboBoxItem Content="0.5x" Tag="0.5" Style="{StaticResource TechComboBoxItem}"/>
+                        <ComboBoxItem Content="0.75x" Tag="0.75" Style="{StaticResource TechComboBoxItem}"/>
+                        <ComboBoxItem Content="1.0x" Tag="1.0" Style="{StaticResource TechComboBoxItem}"/>
+                        <ComboBoxItem Content="1.25x" Tag="1.25" Style="{StaticResource TechComboBoxItem}"/>
+                        <ComboBoxItem Content="1.5x" Tag="1.5" Style="{StaticResource TechComboBoxItem}"/>
+                        <ComboBoxItem Content="2.0x" Tag="2.0" Style="{StaticResource TechComboBoxItem}"/>
+                    </ComboBox>
                     
                     <Border Width="1" Background="{StaticResource BorderColor}" Margin="15,0" Height="20"/>
                     
@@ -136,13 +137,34 @@
                               FontFamily="Consolas"
                               VerticalAlignment="Center"
                               Margin="0,0,8,0"/>
-                    <Button Content="SMALL" Click="SetSubtitleSize_Click" Tag="24" Style="{StaticResource TechButton}" 
+                    <ComboBox x:Name="SubtitleSizeComboBox"
+                             Width="90"
+                             FontSize="9"
+                             Style="{StaticResource TechComboBox}"
+                             VerticalAlignment="Center"
+                             SelectionChanged="SubtitleSizeComboBox_SelectionChanged"
+                             SelectedIndex="1">
+                        <ComboBoxItem Content="SMALL" Tag="24" Style="{StaticResource TechComboBoxItem}"/>
+                        <ComboBoxItem Content="MEDIUM" Tag="32" Style="{StaticResource TechComboBoxItem}"/>
+                        <ComboBoxItem Content="LARGE" Tag="42" Style="{StaticResource TechComboBoxItem}"/>
+                        <ComboBoxItem Content="XLARGE" Tag="54" Style="{StaticResource TechComboBoxItem}"/>
+                    </ComboBox>
+                    
+                    <Border Width="1" Background="{StaticResource BorderColor}" Margin="15,0" Height="20"/>
+                    
+                    <!-- Rotation Controls -->
+                    <TextBlock Text="ROTATE:" 
+                              Foreground="{StaticResource AccentColor}"
+                              FontSize="10"
+                              FontWeight="Bold"
+                              FontFamily="Consolas"
+                              VerticalAlignment="Center"
+                              Margin="0,0,8,0"/>
+                    <Button Content="↶ 90°" Click="RotateLeft_Click" Style="{StaticResource TechButton}" 
                            Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
-                    <Button Content="MEDIUM" Click="SetSubtitleSize_Click" Tag="32" Style="{StaticResource TechButton}" 
+                    <Button Content="↷ 90°" Click="RotateRight_Click" Style="{StaticResource TechButton}" 
                            Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
-                    <Button Content="LARGE" Click="SetSubtitleSize_Click" Tag="42" Style="{StaticResource TechButton}" 
-                           Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
-                    <Button Content="XLARGE" Click="SetSubtitleSize_Click" Tag="54" Style="{StaticResource TechButton}" 
+                    <Button Content="RESET" Click="RotateReset_Click" Style="{StaticResource TechButton}" 
                            Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
                     
                     <Border Width="1" Background="{StaticResource BorderColor}" Margin="15,0" Height="20"/>
@@ -154,19 +176,33 @@
             </Border>
             
             <!-- Video/Image Display -->
-            <MediaElement x:Name="VideoPlayer" 
-                         LoadedBehavior="Manual"
-                         UnloadedBehavior="Stop"
-                         Stretch="Uniform"
-                         Visibility="Collapsed"
-                         MediaOpened="VideoPlayer_MediaOpened"
-                         MediaEnded="VideoPlayer_MediaEnded"
-                         MouseLeftButtonDown="Media_DoubleClick"/>
+            <Grid x:Name="VideoContainer" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
+                <Grid.LayoutTransform>
+                    <RotateTransform x:Name="VideoRotateTransform" Angle="0"/>
+                </Grid.LayoutTransform>
+                <MediaElement x:Name="VideoPlayer" 
+                             LoadedBehavior="Manual"
+                             UnloadedBehavior="Stop"
+                             Stretch="Uniform"
+                             Visibility="Visible"
+                             MediaOpened="VideoPlayer_MediaOpened"
+                             MediaEnded="VideoPlayer_MediaEnded"
+                             MouseLeftButtonDown="Media_DoubleClick"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center"/>
+            </Grid>
             
-            <Image x:Name="ImageViewer" 
-                  Stretch="Uniform"
-                  Visibility="Collapsed"
-                  MouseLeftButtonDown="Media_DoubleClick"/>
+            <Grid x:Name="ImageContainer" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
+                <Grid.LayoutTransform>
+                    <RotateTransform x:Name="ImageRotateTransform" Angle="0"/>
+                </Grid.LayoutTransform>
+                <Image x:Name="ImageViewer" 
+                      Stretch="Uniform"
+                      Visibility="Visible"
+                      MouseLeftButtonDown="Media_DoubleClick"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"/>
+            </Grid>
             
             <!-- On-Screen Display (OSD) -->
             <Border x:Name="OSDPanel"

@@ -32,6 +32,12 @@ namespace BobMediaPlayer
         private string? currentSubtitlePath;
         private double previousVolume = 50;
         private Playlist playlist = new Playlist();
+        private bool autoRotationApplied = false;
+        private bool userRotated = false;
+        private bool layoutRotateHooked = false;
+        // Session preference: which portrait orientation to prefer when enforcing portrait
+        private bool preferPortrait270 = true; // false => prefer 90°, true => prefer 270°
+        private double currentRotationAngle = 0;
 
         public MainWindow()
         {
@@ -70,7 +76,8 @@ namespace BobMediaPlayer
             JumpBackButton.Visibility = Visibility.Collapsed;
             JumpForwardButton.Visibility = Visibility.Collapsed;
             SubtitleButton.Visibility = Visibility.Collapsed;
-            SettingsButton.Visibility = Visibility.Collapsed;
+            SettingsButton.Visibility = Visibility.Visible;
+            SettingsButton.IsEnabled = true;
 
             // Show navigation for images
             PreviousButton.Visibility = Visibility.Visible;
@@ -232,8 +239,13 @@ namespace BobMediaPlayer
                 isPlaying = false;
             }
             
-            VideoPlayer.Visibility = Visibility.Visible;
-            ImageViewer.Visibility = Visibility.Collapsed;
+            // Reset rotation
+            currentRotationAngle = 0;
+            VideoRotateTransform.Angle = 0;
+            userRotated = false;
+            
+            VideoContainer.Visibility = Visibility.Visible;
+            ImageContainer.Visibility = Visibility.Collapsed;
             
             // Reset timeline
             TimelineSlider.Value = 0;
@@ -249,6 +261,30 @@ namespace BobMediaPlayer
             LoadSubtitles(filePath);
             
             currentMediaType = MediaType.Video;
+            autoRotationApplied = false;
+            // Ensure size-change will trigger auto-rotate once layout is ready
+            MediaDisplayGrid.SizeChanged -= MediaDisplayGrid_SizeChangedForAutoRotate;
+            MediaDisplayGrid.SizeChanged += MediaDisplayGrid_SizeChangedForAutoRotate;
+
+            // Also hook a one-shot LayoutUpdated to catch when NaturalVideoWidth/Height and layout are valid
+            if (!layoutRotateHooked)
+            {
+                layoutRotateHooked = true;
+                EventHandler handler = null!;
+                handler = (s, e2) =>
+                {
+                    if (!userRotated && !autoRotationApplied &&
+                        MediaDisplayGrid.ActualWidth > 0 && MediaDisplayGrid.ActualHeight > 0 &&
+                        VideoPlayer.NaturalVideoWidth > 0 && VideoPlayer.NaturalVideoHeight > 0)
+                    {
+                        AutoRotateVideo();
+                        autoRotationApplied = true;
+                        VideoPlayer.LayoutUpdated -= handler;
+                        layoutRotateHooked = false;
+                    }
+                };
+                VideoPlayer.LayoutUpdated += handler;
+            }
             
             // Auto-play the video
             VideoPlayer.Play();
@@ -262,8 +298,12 @@ namespace BobMediaPlayer
             // Show main window if hidden
             this.Show();
             
-            VideoPlayer.Visibility = Visibility.Collapsed;
-            ImageViewer.Visibility = Visibility.Visible;
+            // Reset rotation
+            currentRotationAngle = 0;
+            ImageRotateTransform.Angle = 0;
+            
+            VideoContainer.Visibility = Visibility.Collapsed;
+            ImageContainer.Visibility = Visibility.Visible;
             
             BitmapImage bitmap = new BitmapImage();
             bitmap.BeginInit();
@@ -382,11 +422,112 @@ namespace BobMediaPlayer
                 TotalTimeText.Text = FormatTime(VideoPlayer.NaturalDuration.TimeSpan);
                 TimelineSlider.IsEnabled = true;
             }
+            
+            // Auto-rotate trying initial pass
+            AutoRotateVideo();
+            // Also schedule a deferred pass once layout is ready, unless user already rotated
+            if (!userRotated)
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (!userRotated && !autoRotationApplied)
+                    {
+                        AutoRotateVideo();
+                        autoRotationApplied = true;
+                    }
+                }), System.Windows.Threading.DispatcherPriority.Loaded);
+            }
+        }
+        
+        private void AutoRotateVideo()
+        {
+            if (userRotated) return;
+            double w = VideoPlayer.NaturalVideoWidth;
+            double h = VideoPlayer.NaturalVideoHeight;
+            if (w <= 0 || h <= 0 || MediaDisplayGrid.ActualWidth <= 0 || MediaDisplayGrid.ActualHeight <= 0)
+            {
+                // Fallback to no rotation
+                currentRotationAngle = 0;
+                VideoRotateTransform.Angle = 0;
+                return;
+            }
+
+            double cw = MediaDisplayGrid.ActualWidth;
+            double ch = MediaDisplayGrid.ActualHeight;
+
+            // Only auto-rotate if the source is clearly portrait to avoid rotating landscape videos
+            double aspect = h / w; // >1 means portrait
+            if (aspect <= 1.05) // threshold: do NOT rotate if landscape or nearly square
+            {
+                currentRotationAngle = 0;
+                VideoRotateTransform.Angle = 0;
+                return;
+            }
+
+            // We want portrait orientation: short side (width) should be the top edge
+            // i.e., displayed width <= displayed height after rotation.
+            double BestAreaFor(int angle, out double rwOut, out double rhOut)
+            {
+                bool swap = (angle == 90 || angle == 270);
+                double rw = swap ? h : w;
+                double rh = swap ? w : h;
+                double scale = Math.Min(cw / rw, ch / rh);
+                rwOut = rw * scale;
+                rhOut = rh * scale;
+                return (rw * rh) * scale * scale;
+            }
+
+            // Evaluate portrait-first with preferred order (90 over 270) to avoid upside-down look
+            int[] portraitOrder = preferPortrait270 ? new[] { 270, 90 } : new[] { 90, 270 };
+            int chosen = 90; // default bias to 90° (upright portrait)
+            double bestAreaPortrait = -1;
+            foreach (var a in portraitOrder)
+            {
+                double rwDisp, rhDisp;
+                double area = BestAreaFor(a, out rwDisp, out rhDisp);
+                bool isPortrait = rwDisp <= rhDisp;
+                if (isPortrait && area > bestAreaPortrait)
+                {
+                    bestAreaPortrait = area;
+                    chosen = a;
+                }
+            }
+            // If no portrait candidate beats threshold (unexpected), stay at 0°
+            if (bestAreaPortrait < 0)
+            {
+                chosen = 0;
+            }
+            currentRotationAngle = chosen;
+            VideoRotateTransform.Angle = chosen;
+            if (chosen != 0)
+            {
+                ShowOSD($"Auto-rotated {chosen}° (portrait)");
+            }
         }
 
         private void VideoPlayer_MediaEnded(object sender, RoutedEventArgs e)
         {
             Stop_Click(null, null);
+        }
+
+        private void MediaDisplayGrid_SizeChangedForAutoRotate(object sender, SizeChangedEventArgs e)
+        {
+            if (currentMediaType == MediaType.Video && !autoRotationApplied && !userRotated)
+            {
+                if (MediaDisplayGrid.ActualWidth > 0 && MediaDisplayGrid.ActualHeight > 0 &&
+                    VideoPlayer.NaturalVideoWidth > 0 && VideoPlayer.NaturalVideoHeight > 0)
+                {
+                    AutoRotateVideo();
+                    autoRotationApplied = true;
+                    MediaDisplayGrid.SizeChanged -= MediaDisplayGrid_SizeChangedForAutoRotate;
+                }
+            }
+            else if (userRotated)
+            {
+                // Stop listening if user took control
+                MediaDisplayGrid.SizeChanged -= MediaDisplayGrid_SizeChangedForAutoRotate;
+                autoRotationApplied = true;
+            }
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
@@ -941,12 +1082,12 @@ namespace BobMediaPlayer
             }
         }
 
-        private void SetSpeed_Click(object sender, RoutedEventArgs e)
+        private void SpeedComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is Button button && button.Tag != null)
+            if (sender is ComboBox comboBox && comboBox.SelectedItem is ComboBoxItem item && item.Tag != null)
             {
-                playbackSpeed = Convert.ToDouble(button.Tag);
-                if (currentMediaType == MediaType.Video)
+                playbackSpeed = Convert.ToDouble(item.Tag);
+                if (currentMediaType == MediaType.Video && VideoPlayer != null)
                 {
                     VideoPlayer.SpeedRatio = playbackSpeed;
                     ShowOSD($"Speed: {playbackSpeed:F2}x");
@@ -954,13 +1095,69 @@ namespace BobMediaPlayer
             }
         }
 
-        private void SetSubtitleSize_Click(object sender, RoutedEventArgs e)
+        private void SubtitleSizeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is Button button && button.Tag != null)
+            if (sender is ComboBox comboBox && comboBox.SelectedItem is ComboBoxItem item && item.Tag != null)
             {
-                int fontSize = Convert.ToInt32(button.Tag);
-                SubtitleText.FontSize = fontSize;
-                ShowOSD($"Subtitle size: {fontSize}px");
+                int fontSize = Convert.ToInt32(item.Tag);
+                if (SubtitleText != null)
+                {
+                    SubtitleText.FontSize = fontSize;
+                    ShowOSD($"Subtitle size: {fontSize}px");
+                }
+            }
+        }
+        
+        private void RotateLeft_Click(object sender, RoutedEventArgs e)
+        {
+            RotateMedia(-90);
+        }
+        
+        private void RotateRight_Click(object sender, RoutedEventArgs e)
+        {
+            RotateMedia(90);
+        }
+        
+        private void RotateReset_Click(object sender, RoutedEventArgs e)
+        {
+            currentRotationAngle = 0;
+            if (currentMediaType == MediaType.Video)
+            {
+                VideoRotateTransform.Angle = 0;
+            }
+            else if (currentMediaType == MediaType.Image)
+            {
+                ImageRotateTransform.Angle = 0;
+            }
+            ShowOSD("Rotation reset");
+            userRotated = true; // treat as user action to prevent auto-rotate overriding
+        }
+        
+        private void RotateMedia(double degrees)
+        {
+            currentRotationAngle = (currentRotationAngle + degrees) % 360;
+            if (currentRotationAngle < 0)
+                currentRotationAngle += 360;
+            
+            if (currentMediaType == MediaType.Video)
+            {
+                VideoRotateTransform.Angle = currentRotationAngle;
+                ShowOSD($"Rotated: {currentRotationAngle}°");
+            }
+            else if (currentMediaType == MediaType.Image)
+            {
+                ImageRotateTransform.Angle = currentRotationAngle;
+                ShowOSD($"Rotated: {currentRotationAngle}°");
+            }
+            userRotated = true;
+            // Prevent any further auto-rotate after user action
+            MediaDisplayGrid.SizeChanged -= MediaDisplayGrid_SizeChangedForAutoRotate;
+            autoRotationApplied = true;
+
+            // Learn user's portrait preference: if user lands on 270° portrait, prefer it for future auto-rotate
+            if (currentMediaType == MediaType.Video && (currentRotationAngle == 90 || currentRotationAngle == 270))
+            {
+                preferPortrait270 = (currentRotationAngle == 270);
             }
         }
 

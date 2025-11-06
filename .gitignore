@@ -1,0 +1,55 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.log
+*.tmp
+*.temp
+*.bak
+
+# Visual Studio
+.vs/
+.vscode/
+*.sln.DotSettings.user
+*.csproj.DotSettings.user
+
+# Build outputs
+build/
+publish/
+Release/
+Debug/
+*.exe
+*.dll
+*.pdb
+*.exe.config
+*.dll.config
+
+# NuGet
+packages/
+*.nupkg
+.nuget/
+
+# Windows
+Thumbs.db
+Desktop.ini
+*.stackdump
+
+# IDE
+*.swp
+*.swo
+*~
+
+# Project specific
+icon.ico
+header.bmp
+wizard.bmp
+nsis-setup.exe
+
+# Installer outputs
+BobMediaPlayer-Setup*.exe
+*.msi
+
+# Dependencies
+node_modules/
