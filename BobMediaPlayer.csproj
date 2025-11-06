@@ -8,8 +8,8 @@
     <AssemblyName>BobMediaPlayer</AssemblyName>
     <Product>BOB Media Player</Product>
     <Company>BOB Media Player</Company>
-    <Description>A modern media player with VLC-like features</Description>
-    <Version>1.0.0</Version>
+    <Description>A modern media player</Description>
+    <Version>1.2</Version>
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
 

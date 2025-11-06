@@ -1,6 +1,7 @@
 <Window x:Class="BobMediaPlayer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="BOB MEDIA PLAYER" 
         Height="700" 
         Width="1000"
@@ -15,7 +16,20 @@
         WindowStyle="None"
         AllowsTransparency="False"
         BorderBrush="{StaticResource DarkBackground}"
-        BorderThickness="0">
+        BorderThickness="0"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+    
+    <!-- WindowChrome for Windows 11 compatibility -->
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome 
+            CaptionHeight="0"
+            CornerRadius="0"
+            GlassFrameThickness="0"
+            NonClientFrameEdges="None"
+            ResizeBorderThickness="0"
+            UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
     
     <Window.InputBindings>
         <KeyBinding Key="F11" Command="{Binding ToggleFullscreenCommand}"/>
@@ -210,7 +224,7 @@
                               Foreground="{StaticResource TextPrimary}"
                               HorizontalAlignment="Center"
                               Margin="0,0,0,8"/>
-                    <TextBlock Text="v1.0" 
+                    <TextBlock Text="v1.2" 
                               FontSize="11" 
                               FontFamily="Consolas"
                               Foreground="{StaticResource AccentColor}"

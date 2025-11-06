@@ -20,8 +20,9 @@ namespace BobMediaPlayer
         private MediaType currentMediaType = MediaType.None;
         private AudioPlayerWindow? audioWindow;
         private bool isFullscreen = false;
+        private Rect previousWindowBounds;
         private WindowState previousWindowState;
-        private WindowStyle previousWindowStyle;
+        private ResizeMode previousResizeMode;
         private DispatcherTimer hideControlsTimer;
         private DispatcherTimer hideCursorTimer;
         private Point lastMousePosition;
@@ -71,9 +72,10 @@ namespace BobMediaPlayer
             SubtitleButton.Visibility = Visibility.Collapsed;
             SettingsButton.Visibility = Visibility.Collapsed;
 
-            // Navigation may be considered unnecessary for single image view; hide to simplify
-            PreviousButton.Visibility = Visibility.Collapsed;
-            NextButton.Visibility = Visibility.Collapsed;
+            // Show navigation for images
+            PreviousButton.Visibility = Visibility.Visible;
+            NextButton.Visibility = Visibility.Visible;
+            UpdatePlaylistButtons();
 
             // Hide volume for images
             VolumePanel.Visibility = Visibility.Collapsed;
@@ -142,13 +144,28 @@ namespace BobMediaPlayer
             currentMediaPath = filePath;
             string extension = Path.GetExtension(filePath).ToLower();
             
-            // Add to playlist and scan directory
+            // Add to playlist and scan directory using appropriate extensions per media type
             playlist.SetCurrentFile(filePath);
             string? directory = Path.GetDirectoryName(filePath);
             if (directory != null)
             {
-                string[] mediaExtensions = { ".mp3", ".wav", ".m4a", ".wma", ".mp4", ".avi", ".mkv", ".mov", ".wmv" };
-                playlist.AddDirectory(directory, mediaExtensions);
+                if (IsVideoFile(extension))
+                {
+                    string[] videoExtensions = { ".mp4", ".avi", ".mkv", ".mov", ".wmv" };
+                    playlist.AddDirectory(directory, videoExtensions);
+                }
+                else if (IsImageFile(extension))
+                {
+                    string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                    playlist.AddDirectory(directory, imageExtensions);
+                }
+                else if (IsAudioFile(extension))
+                {
+                    string[] audioExtensions = { ".mp3", ".wav", ".m4a", ".wma" };
+                    playlist.AddDirectory(directory, audioExtensions);
+                }
+                // Reset current index to the file's position within the now-populated list
+                playlist.SetCurrentFile(filePath);
             }
             
             // Update button states
@@ -504,6 +521,16 @@ namespace BobMediaPlayer
                 JumpBackward();
                 e.Handled = true;
             }
+            else if (e.Key == Key.Right && currentMediaType == MediaType.Image)
+            {
+                Next_Click(sender, new RoutedEventArgs());
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Left && currentMediaType == MediaType.Image)
+            {
+                Previous_Click(sender, new RoutedEventArgs());
+                e.Handled = true;
+            }
             else if (e.Key == Key.Up && currentMediaType == MediaType.Video)
             {
                 VolumeSlider.Value = Math.Min(100, VolumeSlider.Value + 5);
@@ -549,21 +576,34 @@ namespace BobMediaPlayer
         {
             if (currentMediaType == MediaType.Video || currentMediaType == MediaType.Image)
             {
+                // Save current state
+                previousWindowBounds = new Rect(Left, Top, Width, Height);
                 previousWindowState = WindowState;
-                previousWindowStyle = WindowStyle;
-                
-                WindowStyle = WindowStyle.None;
-                WindowState = WindowState.Maximized;
-                
+                previousResizeMode = ResizeMode;
+
+                // Get the screen bounds for the current screen
+                var screen = System.Windows.Forms.Screen.FromHandle(new System.Windows.Interop.WindowInteropHelper(this).Handle);
+                var screenBounds = screen.Bounds;
+
+                // Set window to fullscreen bounds
+                Left = screenBounds.X;
+                Top = screenBounds.Y;
+                Width = screenBounds.Width;
+                Height = screenBounds.Height;
+
+                // Prevent resizing and maximize
+                ResizeMode = ResizeMode.NoResize;
+                WindowState = WindowState.Normal; // Set to Normal first, then manually size
+
                 // Hide control panel, title bar, and settings bar initially
                 ControlPanel.Visibility = Visibility.Collapsed;
                 TitleBar.Visibility = Visibility.Collapsed;
                 SettingsBar.Visibility = Visibility.Collapsed;
                 controlsVisible = false;
-                
+
                 isFullscreen = true;
                 // Keep button text as [ FULLSCREEN ]
-                
+
                 // Start timers for auto-hide
                 hideControlsTimer.Start();
                 hideCursorTimer.Start();
@@ -574,21 +614,26 @@ namespace BobMediaPlayer
         {
             if (isFullscreen)
             {
-                WindowStyle = previousWindowStyle;
+                // Restore window bounds and state
+                Left = previousWindowBounds.Left;
+                Top = previousWindowBounds.Top;
+                Width = previousWindowBounds.Width;
+                Height = previousWindowBounds.Height;
                 WindowState = previousWindowState;
-                
+                ResizeMode = previousResizeMode;
+
                 // Show control panel and title bar
                 ControlPanel.Visibility = Visibility.Visible;
                 TitleBar.Visibility = Visibility.Visible;
                 controlsVisible = true;
-                
+
                 isFullscreen = false;
                 // Keep button text as [ FULLSCREEN ]
-                
+
                 // Stop auto-hide timers
                 hideControlsTimer.Stop();
                 hideCursorTimer.Stop();
-                
+
                 // Show cursor
                 this.Cursor = Cursors.Arrow;
             }

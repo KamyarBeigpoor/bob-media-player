@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Now Playing" 
         Icon="icon.ico"
-        Height="480" 
+        Height="600" 
         Width="420"
         Background="{StaticResource DarkBackground}"
         WindowStartupLocation="CenterScreen"
