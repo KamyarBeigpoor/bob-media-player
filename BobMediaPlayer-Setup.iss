@@ -1,5 +1,5 @@
 #define MyAppName "BOB Media Player"
-#define MyAppVersion "1.2"
+#define MyAppVersion "1.3"
 #define MyAppPublisher "BOB Media Player"
 #define MyAppURL "https://github.com/bobdevv/bob-media-player"
 #define MyAppExeName "BobMediaPlayer.exe"

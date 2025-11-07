@@ -16,7 +16,7 @@
     <Product>BOB Media Player</Product>
     <Company>BOB Media Player</Company>
     <Description>A modern media player</Description>
-    <Version>1.2</Version>
+    <Version>1.3</Version>
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>

@@ -24,6 +24,7 @@ namespace BobMediaPlayer
         public AudioPlayerWindow(string filePath)
         {
             InitializeComponent();
+            this.Topmost = true;
             
             audioFilePath = filePath;
             

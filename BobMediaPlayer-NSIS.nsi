@@ -7,7 +7,7 @@
 
 ;General
 Name "BOB Media Player"
-OutFile "BobMediaPlayer-Setup-1.2.exe"
+OutFile "BobMediaPlayer-Setup-1.3.exe"
 Unicode True
 InstallDir "$PROGRAMFILES\BOB Media Player"
 InstallDirRegKey HKCU "Software\BOB Media Player" ""
@@ -38,11 +38,11 @@ RequestExecutionLevel admin
 !insertmacro MUI_LANGUAGE "English"
 
 ;Version Information
-VIProductVersion "1.2.0.0"
+VIProductVersion "1.3.0.0"
 VIAddVersionKey "ProductName" "BOB Media Player"
 VIAddVersionKey "CompanyName" "BOB Media Player"
-VIAddVersionKey "FileVersion" "1.2.0.0"
-VIAddVersionKey "ProductVersion" "1.2.0.0"
+VIAddVersionKey "FileVersion" "1.3.0.0"
+VIAddVersionKey "ProductVersion" "1.3.0.0"
 VIAddVersionKey "FileDescription" "A modern media player with VLC-like features"
 
 ;Installer Sections
@@ -68,7 +68,7 @@ Section "BOB Media Player (required)" SecMain
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\BOB Media Player" "UninstallString" "$INSTDIR\Uninstall.exe"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\BOB Media Player" "DisplayIcon" "$INSTDIR\icon.ico"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\BOB Media Player" "Publisher" "BOB Media Player"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\BOB Media Player" "DisplayVersion" "1.2"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\BOB Media Player" "DisplayVersion" "1.3"
     WriteRegDWord HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\BOB Media Player" "NoModify" 1
     WriteRegDWord HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\BOB Media Player" "NoRepair" 1
 

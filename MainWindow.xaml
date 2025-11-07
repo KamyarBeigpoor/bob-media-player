@@ -70,7 +70,7 @@
                                Margin="0,0,8,0"
                                FontSize="9"
                                FontFamily="Consolas"
-                               IsEnabled="False"/>
+                               IsEnabled="True"/>
                         <Button Content="_" 
                                Style="{StaticResource ModernButton}"
                                Click="Minimize_Click"
@@ -260,7 +260,7 @@
                               Foreground="{StaticResource TextPrimary}"
                               HorizontalAlignment="Center"
                               Margin="0,0,0,8"/>
-                    <TextBlock Text="v1.2" 
+                    <TextBlock Text="v1.3" 
                               FontSize="11" 
                               FontFamily="Consolas"
                               Foreground="{StaticResource AccentColor}"

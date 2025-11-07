@@ -38,10 +38,12 @@ namespace BobMediaPlayer
         // Session preference: which portrait orientation to prefer when enforcing portrait
         private bool preferPortrait270 = true; // false => prefer 90°, true => prefer 270°
         private double currentRotationAngle = 0;
+        private AppSettings appSettings = new AppSettings();
 
         public MainWindow()
         {
             InitializeComponent();
+            this.Topmost = true;
             
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(100);
@@ -59,6 +61,9 @@ namespace BobMediaPlayer
             
             // Track mouse movement
             this.MouseMove += Window_MouseMove;
+            
+            // Apply settings
+            ApplySettings();
         }
 
         private void ApplyImageUIMode()
@@ -647,10 +652,17 @@ namespace BobMediaPlayer
                 ExitFullscreen();
                 e.Handled = true;
             }
-            else if (e.Key == Key.Space && (currentMediaType == MediaType.Video))
+            else if (e.Key == Key.Space && (currentMediaType == MediaType.Video || currentMediaType == MediaType.Image))
             {
-                PlayPause_Click(sender, new RoutedEventArgs());
-                e.Handled = true;
+                // Only handle space if not focused on a button
+                if (!(Keyboard.FocusedElement is System.Windows.Controls.Button))
+                {
+                    if (currentMediaType == MediaType.Video)
+                    {
+                        PlayPause_Click(sender, new RoutedEventArgs());
+                    }
+                    e.Handled = true;
+                }
             }
             else if (e.Key == Key.Right && currentMediaType == MediaType.Video)
             {
@@ -1072,13 +1084,12 @@ namespace BobMediaPlayer
 
         private void ToggleSettings_Click(object sender, RoutedEventArgs e)
         {
-            if (SettingsBar.Visibility == Visibility.Visible)
+            var settingsWindow = new SettingsWindow(appSettings);
+            settingsWindow.Owner = this;
+            if (settingsWindow.ShowDialog() == true)
             {
-                SettingsBar.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                SettingsBar.Visibility = Visibility.Visible;
+                appSettings = settingsWindow.Settings;
+                ApplySettings();
             }
         }
 
@@ -1159,6 +1170,13 @@ namespace BobMediaPlayer
             {
                 preferPortrait270 = (currentRotationAngle == 270);
             }
+        }
+
+        private void ApplySettings()
+        {
+            this.Topmost = appSettings.AlwaysOnTop;
+            VolumeSlider.Value = appSettings.DefaultVolume;
+            playbackSpeed = appSettings.DefaultSpeed;
         }
 
         protected override void OnClosed(EventArgs e)
