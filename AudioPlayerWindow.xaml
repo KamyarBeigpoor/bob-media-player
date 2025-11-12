@@ -23,8 +23,6 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-
-            <!-- Window Controls -->
             <Grid Grid.Row="0" Margin="0,0,0,20" MouseLeftButtonDown="Header_MouseLeftButtonDown">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Image Source="icon.ico" Width="16" Height="16" Margin="0,0,8,0"/>
@@ -56,7 +54,6 @@
                 </StackPanel>
             </Grid>
 
-            <!-- Album Art -->
             <Border Grid.Row="1" 
                    Background="{StaticResource DarkSecondary}"
                    BorderBrush="{StaticResource BorderColor}"
@@ -78,8 +75,6 @@
                               VerticalAlignment="Center"/>
                 </Grid>
             </Border>
-
-            <!-- Track Info -->
             <StackPanel Grid.Row="2" Margin="0,0,0,25">
                 <TextBlock x:Name="TrackTitleText" 
                           Text="Unknown Track" 
@@ -99,7 +94,6 @@
                           TextTrimming="CharacterEllipsis"/>
             </StackPanel>
 
-            <!-- Timeline -->
             <Grid Grid.Row="3" Margin="0,0,0,20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -116,11 +110,13 @@
                           FontFamily="Consolas"
                           FontSize="12"/>
 
+
+
                 <Slider x:Name="TimelineSlider" 
                        Grid.Column="1"
                        Minimum="0" 
                        Maximum="100"
-                       Style="{StaticResource VLCSlider}"
+                       Style="{StaticResource niceslide}"
                        VerticalAlignment="Center"
                        Thumb.DragStarted="TimelineSlider_DragStarted"
                        Thumb.DragCompleted="TimelineSlider_DragCompleted"
@@ -137,7 +133,9 @@
                           FontSize="12"/>
             </Grid>
 
-            <!-- Control Buttons -->
+
+
+
             <StackPanel Grid.Row="4" 
                        Orientation="Horizontal" 
                        HorizontalAlignment="Center"
@@ -169,8 +167,6 @@
                        FontFamily="Consolas"
                        FontSize="11"/>
             </StackPanel>
-
-            <!-- Volume Control -->
             <StackPanel Grid.Row="5" 
                        Orientation="Horizontal" 
                        HorizontalAlignment="Center">

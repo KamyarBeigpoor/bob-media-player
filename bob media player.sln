@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BobMediaPlayer", "BobMediaPlayer.csproj", "{ED392983-36C1-0553-D063-40C1223904FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BobMediaPlayer_fn4mc0eo_wpftmp", "BobMediaPlayer_fn4mc0eo_wpftmp.csproj", "{40EEAF2A-3444-74F9-1E5C-5D10DF2EBB68}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ED392983-36C1-0553-D063-40C1223904FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED392983-36C1-0553-D063-40C1223904FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED392983-36C1-0553-D063-40C1223904FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED392983-36C1-0553-D063-40C1223904FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40EEAF2A-3444-74F9-1E5C-5D10DF2EBB68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40EEAF2A-3444-74F9-1E5C-5D10DF2EBB68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40EEAF2A-3444-74F9-1E5C-5D10DF2EBB68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40EEAF2A-3444-74F9-1E5C-5D10DF2EBB68}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {75D9E82A-18C4-4369-9BB6-FF3E83F246F4}
+	EndGlobalSection
+EndGlobal

@@ -15,7 +15,6 @@ namespace BobMediaPlayer
             Settings = currentSettings.Clone();
             LoadSettings();
             
-            // Wire up volume slider value displays
             DefaultVolumeSlider.ValueChanged += (s, e) => 
             {
                 VolumeValueText.Text = $"{(int)DefaultVolumeSlider.Value}%";
@@ -28,39 +27,35 @@ namespace BobMediaPlayer
 
         private void LoadSettings()
         {
-            // Playback
             DefaultSpeedComboBox.SelectedIndex = GetSpeedIndex(Settings.DefaultSpeed);
             DefaultVolumeSlider.Value = Settings.DefaultVolume;
 
-            // Window
+            // my ex suggested ts
             AlwaysOnTopCheckBox.IsChecked = Settings.AlwaysOnTop;
 
-            // Music Player
             MusicPlayerAlwaysOnTopCheckBox.IsChecked = Settings.MusicPlayerAlwaysOnTop;
             MusicPlayerShowMetadataCheckBox.IsChecked = Settings.MusicPlayerShowMetadata;
             MusicPlayerShowAlbumArtCheckBox.IsChecked = Settings.MusicPlayerShowAlbumArt;
             MusicPlayerDefaultVolumeSlider.Value = Settings.MusicPlayerDefaultVolume;
 
-            // Advanced
+            
             ShowOSDCheckBox.IsChecked = Settings.ShowOSD;
         }
 
         private void SaveSettings()
         {
-            // Playback
+            
             Settings.DefaultSpeed = GetSpeedFromIndex(DefaultSpeedComboBox.SelectedIndex);
             Settings.DefaultVolume = (int)DefaultVolumeSlider.Value;
 
-            // Window
+            
             Settings.AlwaysOnTop = AlwaysOnTopCheckBox.IsChecked ?? true;
 
-            // Music Player
             Settings.MusicPlayerAlwaysOnTop = MusicPlayerAlwaysOnTopCheckBox.IsChecked ?? true;
             Settings.MusicPlayerShowMetadata = MusicPlayerShowMetadataCheckBox.IsChecked ?? true;
             Settings.MusicPlayerShowAlbumArt = MusicPlayerShowAlbumArtCheckBox.IsChecked ?? true;
             Settings.MusicPlayerDefaultVolume = (int)MusicPlayerDefaultVolumeSlider.Value;
 
-            // Advanced
             Settings.ShowOSD = ShowOSDCheckBox.IsChecked ?? true;
         }
 
@@ -187,17 +182,16 @@ namespace BobMediaPlayer
 
     public class AppSettings
     {
-        // Playback
+        
         public double DefaultSpeed { get; set; } = 1.0;
         public int DefaultVolume { get; set; } = 50;
 
-        // Window
+
         public bool AlwaysOnTop { get; set; } = true;
 
-        // Advanced
+        
         public bool ShowOSD { get; set; } = true;
-
-        // Music Player
+        
         public bool MusicPlayerAlwaysOnTop { get; set; } = true;
         public bool MusicPlayerShowMetadata { get; set; } = true;
         public bool MusicPlayerShowAlbumArt { get; set; } = true;

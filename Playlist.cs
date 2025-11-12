@@ -14,6 +14,12 @@ namespace BobMediaPlayer
         public int CurrentIndex => currentIndex;
         public string? CurrentFile => currentIndex >= 0 && currentIndex < files.Count ? files[currentIndex] : null;
 
+        public void Clear()
+        {
+            files.Clear();
+            currentIndex = -1;
+        }
+
         public void AddFile(string filePath)
         {
             if (!files.Contains(filePath))
@@ -42,7 +48,7 @@ namespace BobMediaPlayer
             }
             catch
             {
-                // Ignore errors
+                // i think to catch errors
             }
         }
 
@@ -88,12 +94,6 @@ namespace BobMediaPlayer
         public bool HasPrevious()
         {
             return files.Count > 0 && currentIndex > 0;
-        }
-
-        public void Clear()
-        {
-            files.Clear();
-            currentIndex = -1;
         }
     }
 }

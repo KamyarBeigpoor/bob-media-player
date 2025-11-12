@@ -176,7 +176,7 @@
             </Border>
             
             <!-- Video/Image Display -->
-            <Grid x:Name="VideoContainer" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
+            <Grid x:Name="VideoContainer" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5" MouseRightButtonDown="MediaContainer_MouseRightButtonDown">
                 <Grid.LayoutTransform>
                     <RotateTransform x:Name="VideoRotateTransform" Angle="0"/>
                 </Grid.LayoutTransform>
@@ -192,7 +192,7 @@
                              VerticalAlignment="Center"/>
             </Grid>
             
-            <Grid x:Name="ImageContainer" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
+            <Grid x:Name="ImageContainer" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5" MouseRightButtonDown="MediaContainer_MouseRightButtonDown">
                 <Grid.LayoutTransform>
                     <RotateTransform x:Name="ImageRotateTransform" Angle="0"/>
                 </Grid.LayoutTransform>
@@ -204,7 +204,6 @@
                       VerticalAlignment="Center"/>
             </Grid>
             
-            <!-- On-Screen Display (OSD) -->
             <Border x:Name="OSDPanel"
                    Background="#CC000000"
                    CornerRadius="0"
@@ -221,7 +220,7 @@
                           FontWeight="Bold"/>
             </Border>
             
-            <!-- Subtitle Display -->
+    
             <Border x:Name="SubtitlePanel"
                    Background="#CC000000"
                    CornerRadius="0"
@@ -260,7 +259,7 @@
                               Foreground="{StaticResource TextPrimary}"
                               HorizontalAlignment="Center"
                               Margin="0,0,0,8"/>
-                    <TextBlock Text="v1.3" 
+                    <TextBlock Text="v1.3.1" 
                               FontSize="11" 
                               FontFamily="Consolas"
                               Foreground="{StaticResource AccentColor}"
@@ -317,7 +316,7 @@
                            Grid.Column="1"
                            Minimum="0" 
                            Maximum="100"
-                           Style="{StaticResource VLCSlider}"
+                           Style="{StaticResource niceslide}"
                            VerticalAlignment="Center"
                            Thumb.DragStarted="TimelineSlider_DragStarted"
                            Thumb.DragCompleted="TimelineSlider_DragCompleted"

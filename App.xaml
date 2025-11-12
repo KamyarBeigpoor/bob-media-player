@@ -3,10 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:BobMediaPlayer">
     <Application.Resources>
-        <!-- Converters -->
         <local:ProgressWidthConverter x:Key="ProgressWidthConverter"/>
-        
-        <!-- Black and White theme -->
         <SolidColorBrush x:Key="DarkBackground" Color="#000000"/>
         <SolidColorBrush x:Key="DarkSecondary" Color="#0a0a0a"/>
         <SolidColorBrush x:Key="DarkTertiary" Color="#1a1a1a"/>
@@ -100,7 +97,6 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Slider Repeat Button Style -->
         <Style x:Key="SliderRepeatButtonStyle" TargetType="RepeatButton">
             <Setter Property="OverridesDefaultStyle" Value="true"/>
             <Setter Property="IsTabStop" Value="false"/>
@@ -114,7 +110,6 @@
             </Setter>
         </Style>
 
-        <!-- Tech ComboBox Style -->
         <Style x:Key="TechComboBox" TargetType="ComboBox">
             <Setter Property="Background" Value="{StaticResource DarkSecondary}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
@@ -208,7 +203,6 @@
             </Setter>
         </Style>
 
-        <!-- Tech ComboBoxItem Style -->
         <Style x:Key="TechComboBoxItem" TargetType="ComboBoxItem">
             <Setter Property="Background" Value="{StaticResource DarkSecondary}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
@@ -241,20 +235,55 @@
             </Setter>
         </Style>
 
-        <!-- VLC-style Slider -->
-        <Style x:Key="VLCSlider" TargetType="Slider">
+        <Style x:Key="NoFocusMenuItemStyle" TargetType="MenuItem">
+            <Setter Property="Background" Value="{StaticResource DarkSecondary}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="Padding" Value="18,5,18,5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header" 
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource DarkTertiary}"/>
+                                <Setter Property="Foreground" Value="{StaticResource AccentBright}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="{StaticResource DarkTertiary}"/>
+                    <Setter Property="Foreground" Value="{StaticResource AccentBright}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+
+        <Style x:Key="niceslide" TargetType="Slider">
             <Setter Property="Height" Value="20"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Slider">
                         <Grid VerticalAlignment="Center">
-                            <!-- Background Track -->
                             <Border Height="4"
                                     Background="#333333"
                                     VerticalAlignment="Center"
                                     CornerRadius="0"/>
                             
-                            <!-- Progress Track -->
                             <Border Height="4"
                                     Background="#ffffff"
                                     HorizontalAlignment="Left"
@@ -269,7 +298,7 @@
                                 </Border.Width>
                             </Border>
                             
-                            <!-- Track with Thumb -->
+                       
                             <Track x:Name="PART_Track">
                                 <Track.DecreaseRepeatButton>
                                     <RepeatButton Command="Slider.DecreaseLarge" Style="{StaticResource SliderRepeatButtonStyle}"/>
@@ -295,7 +324,6 @@
             </Setter>
         </Style>
 
-        <!-- Global default Window icon -->
         <Style TargetType="Window">
             <Setter Property="Icon" Value="pack://application:,,,/icon.ico"/>
         </Style>

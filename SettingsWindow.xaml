@@ -22,7 +22,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Title Bar -->
+    
         <Border Grid.Row="0"
                Background="{StaticResource DarkSecondary}"
                BorderBrush="Transparent"
@@ -48,13 +48,13 @@
             </Grid>
         </Border>
 
-        <!-- Settings Content -->
+        
         <ScrollViewer Grid.Row="1" 
                      VerticalScrollBarVisibility="Auto"
                      Background="{StaticResource DarkBackground}">
             <StackPanel Margin="30,20">
                 
-                <!-- Playback Settings -->
+               
                 <TextBlock Text="PLAYBACK" 
                           Foreground="{StaticResource AccentColor}"
                           FontSize="14"
@@ -102,7 +102,7 @@
 
                 <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,10,0,20"/>
 
-                <!-- Window Settings -->
+               
                 <TextBlock Text="WINDOW" 
                           Foreground="{StaticResource AccentColor}"
                           FontSize="14"
@@ -128,7 +128,7 @@
 
                 <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,10,0,20"/>
 
-                <!-- Music Player Settings -->
+                
                 <TextBlock Text="MUSIC PLAYER" 
                           Foreground="{StaticResource AccentColor}"
                           FontSize="14"
@@ -183,7 +183,7 @@
 
                 <Border Height="1" Background="{StaticResource BorderColor}" Margin="0,10,0,20"/>
 
-                <!-- Advanced Settings -->
+                
                 <TextBlock Text="ADVANCED" 
                           Foreground="{StaticResource AccentColor}"
                           FontSize="14"
@@ -210,7 +210,7 @@
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Bottom Buttons -->
+    
         <Border Grid.Row="2"
                Background="{StaticResource DarkSecondary}"
                BorderBrush="{StaticResource BorderHighlight}"
