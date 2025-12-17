@@ -10,7 +10,7 @@
     <Product>BOB Media Player</Product>
     <Company>BOB Media Player</Company>
     <Description>A modern media player</Description>
-    <Version>alpha 2.0</Version>
+    <Version>alpha_2.0</Version>
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
 
