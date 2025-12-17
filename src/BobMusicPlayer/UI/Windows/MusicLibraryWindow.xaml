@@ -1,0 +1,239 @@
+<Window x:Class="BobMediaPlayer.MusicLibraryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Music Library"
+        Height="720"
+        Width="1100"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        BorderBrush="#2a333a"
+        BorderThickness="2">
+    <Window.Resources>
+        <!-- MusicBee Color Scheme -->
+        <SolidColorBrush x:Key="BgBrush" Color="#1f262c"/>
+        <SolidColorBrush x:Key="BgDarkBrush" Color="#171d22"/>
+        <SolidColorBrush x:Key="PanelBrush" Color="#1b2228"/>
+        <SolidColorBrush x:Key="Panel2Brush" Color="#222a31"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#12161a"/>
+        <SolidColorBrush x:Key="TextBrush" Color="#f3f6f9"/>
+        <SolidColorBrush x:Key="MutedBrush" Color="#9aa6b2"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#7fb1d6"/>
+        <SolidColorBrush x:Key="RowBrush" Color="#242c33"/>
+        <SolidColorBrush x:Key="RowHoverBrush" Color="#2a333b"/>
+        <SolidColorBrush x:Key="RowActiveBrush" Color="#313b45"/>
+        
+        <!-- Top Bar Gradient -->
+        <LinearGradientBrush x:Key="TopBarBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#2a3239" Offset="0"/>
+            <GradientStop Color="#232a31" Offset="1"/>
+        </LinearGradientBrush>
+        
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+        
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Height" Value="12"/>
+                </Trigger>
+                <Trigger Property="Orientation" Value="Vertical">
+                    <Setter Property="Width" Value="12"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style TargetType="ScrollViewer">
+            <Setter Property="Background" Value="{StaticResource BgBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource RowHoverBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#2a343c"/>
+            <Setter Property="BorderBrush" Value="#20282f"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Padding" Value="4,8"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </Window.Resources>
+    <Grid Background="{StaticResource BgBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="34"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="48"/>
+        </Grid.RowDefinitions>
+        
+        <!-- TOP BAR -->
+        <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+            <Grid Background="{StaticResource TopBarBrush}">
+                <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Navigation Menu -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="10,0" VerticalAlignment="Center">
+                <Button Content="ARTISTS" FontWeight="600" FontSize="13" Foreground="{StaticResource TextBrush}" Opacity="1"/>
+                <Button Content="ALL MUSIC (IN DEVELOPMENT)" FontWeight="600" FontSize="13" Foreground="{StaticResource TextBrush}" Opacity="0.85" Margin="18,0,0,0"/>
+                <Button Content="PLAYLISTS (IN DEVELOPMENT)" FontWeight="600" FontSize="13" Foreground="{StaticResource TextBrush}" Opacity="0.85" Margin="18,0,0,0"/>
+                <Button Content="(IN DEVELOPMENT)" FontWeight="600" FontSize="13" Foreground="{StaticResource TextBrush}" Opacity="0.85" Margin="18,0,0,0"/>
+            </StackPanel>
+            
+            <!-- Search Box -->
+            <TextBox Grid.Column="2" x:Name="SearchBox" Width="200" Text="search" Margin="0,0,10,0" VerticalAlignment="Center" 
+                     TextChanged="SearchBox_TextChanged" GotFocus="SearchBox_GotFocus" LostFocus="SearchBox_LostFocus" Foreground="Gray"/>
+            
+            <!-- Window Controls -->
+            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,8,0" VerticalAlignment="Center">
+                <Button x:Name="MiniPlayerButton" Padding="8,0" FontSize="12" Width="32" Height="32" Click="MiniPlayerButton_Click" ToolTip="Switch to Mini Player">
+                    <TextBlock Text="&#xE768;" FontFamily="Segoe MDL2 Assets"/>
+                </Button>
+                <Button Content="_" Padding="8,0" FontSize="16" Width="32" Height="32" Click="Minimize_Click"/>
+                <Button Padding="8,0" FontSize="16" Width="32" Height="32" Click="Fullscreen_Click">
+                    <TextBlock Text="&#xE740;" FontFamily="Segoe MDL2 Assets"/>
+                </Button>
+                <Button Content="X" Padding="8,0" FontSize="14" Width="32" Height="32" Click="Close_Click"/>
+            </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- MAIN CONTENT AREA -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="260"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="260"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- LEFT: ARTISTS -->
+            <Border Grid.Column="0" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="ArtistsPanel">
+                        <!-- Artists will be populated here -->
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+            
+            <!-- CENTER: ALBUM + TRACK LIST -->
+            <Border Grid.Column="1" Background="{StaticResource Panel2Brush}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="10,14">
+                    <StackPanel x:Name="AlbumsPanel">
+                        <!-- Album blocks will be populated here -->
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+            
+            <!-- RIGHT: QUEUE & NOW PLAYING -->
+            <Border Grid.Column="2" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Now Playing Section -->
+                    <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Margin="8,8,8,6">
+                        <StackPanel>
+                            <TextBlock Text="Now Playing" FontSize="13" FontWeight="600" Foreground="{StaticResource TextBrush}" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Image Grid.Column="0" x:Name="NowPlayingAlbumArt" Width="80" Height="80" Stretch="Uniform" Margin="0,0,8,0"/>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock x:Name="NowPlayingTitle" Text="No track playing" FontSize="12" FontWeight="600" Foreground="{StaticResource TextBrush}" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="NowPlayingArtist" Text="" FontSize="11" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Queue Section -->
+                    <StackPanel Grid.Row="1">
+                        <TextBlock Text="Queue" Margin="8,10,8,6" FontSize="13" FontWeight="600" Foreground="{StaticResource TextBrush}"/>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel x:Name="QueuePanel">
+                                <!-- Queue items will be populated here -->
+                            </StackPanel>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- BOTTOM PLAYER CONTROLS -->
+        <Border Grid.Row="2" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid Margin="12,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Playback Controls -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="LibPrevButton" Content="⏮" FontSize="16" Padding="8,4" Margin="0,0,8,0" Click="LibPrevButton_Click"/>
+                    <Button x:Name="LibPlayPauseButton" Content="⏯" FontSize="16" Padding="8,4" Margin="0,0,8,0" Click="LibPlayPauseButton_Click"/>
+                    <Button x:Name="LibNextButton" Content="⏭" FontSize="16" Padding="8,4" Click="LibNextButton_Click"/>
+                </StackPanel>
+                
+                <!-- Progress Bar -->
+                <Grid Grid.Column="1" VerticalAlignment="Center" Margin="16,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" x:Name="LibCurrentTime" Text="00:00" Foreground="{StaticResource TextBrush}" FontSize="11" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <Slider Grid.Column="1" x:Name="LibTimeline" Minimum="0" Maximum="100" VerticalAlignment="Center"
+                            Thumb.DragStarted="LibTimeline_DragStarted" 
+                            Thumb.DragCompleted="LibTimeline_DragCompleted"
+                            ValueChanged="LibTimeline_ValueChanged" 
+                            PreviewMouseLeftButtonDown="LibTimeline_MouseDown"/>
+                    <TextBlock Grid.Column="2" x:Name="LibTotalTime" Text="00:00" Foreground="{StaticResource TextBrush}" FontSize="11" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                </Grid>
+                
+                <!-- Volume Control -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
+                    <TextBlock Text="&#xE15D;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{StaticResource TextBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <Slider x:Name="LibVolumeSlider" Minimum="0" Maximum="100" Value="50" Width="80" VerticalAlignment="Center" ValueChanged="LibVolumeSlider_ValueChanged"/>
+                </StackPanel>
+                
+                <!-- Status -->
+                <TextBlock x:Name="StatusText" Grid.Column="3" Text="Ready" Foreground="{StaticResource MutedBrush}" FontSize="11" VerticalAlignment="Center" Margin="16,0,0,0"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

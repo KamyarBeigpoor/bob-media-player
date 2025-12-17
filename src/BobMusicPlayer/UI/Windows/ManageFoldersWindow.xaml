@@ -1,0 +1,46 @@
+<Window x:Class="BobMediaPlayer.ManageFoldersWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Manage Music Folders"
+        Height="520"
+        Width="720"
+        Background="{StaticResource DarkBackground}"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        BorderBrush="{StaticResource BorderColor}"
+        BorderThickness="2">
+    <Border CornerRadius="0" Background="{StaticResource DarkBackground}" BorderBrush="{StaticResource BorderHighlight}" BorderThickness="1">
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Height="44" Background="{StaticResource DarkSecondary}" MouseLeftButtonDown="Header_MouseLeftButtonDown">
+                <TextBlock Text="MANAGE FOLDERS" Foreground="{StaticResource AccentColor}" FontSize="12" FontWeight="Bold" FontFamily="Consolas" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,8,0" VerticalAlignment="Center">
+                    <Button Content="_" Style="{StaticResource ModernButton}" Click="Minimize_Click" Padding="8,0" FontSize="16" FontFamily="Consolas" Width="32" Height="32"/>
+                    <Button Content="X" Style="{StaticResource ModernButton}" Click="Close_Click" Padding="8,0" FontSize="14" FontFamily="Consolas" Width="32" Height="32"/>
+                </StackPanel>
+            </Grid>
+
+            <StackPanel Grid.Row="1" Margin="0,16,0,16">
+                <TextBlock Text="Folders to scan:" Foreground="{StaticResource TextSecondary}" Margin="0,0,0,8" FontFamily="Consolas"/>
+                <ListBox x:Name="FoldersList" Height="320" Background="{StaticResource DarkSecondary}" Foreground="{StaticResource TextPrimary}" BorderBrush="{StaticResource BorderColor}" BorderThickness="1"
+                         SelectionMode="Extended" FontFamily="Consolas"/>
+                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                    <Button x:Name="AddButton" Content="ADD FOLDER" Background="#1a1a1a" Foreground="White" BorderBrush="#333333" BorderThickness="1" Margin="0,0,8,0" Padding="16,8" Click="AddButton_Click"/>
+                    <Button x:Name="RemoveButton" Content="REMOVE SELECTED" Background="#1a1a1a" Foreground="White" BorderBrush="#333333" BorderThickness="1" Margin="0,0,8,0" Padding="16,8" Click="RemoveButton_Click"/>
+                    <Button x:Name="ResetButton" Content="RESET DEFAULTS" Background="#1a1a1a" Foreground="White" BorderBrush="#333333" BorderThickness="1" Padding="16,8" Click="ResetButton_Click"/>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="SaveButton" Content="SAVE" Background="#1a1a1a" Foreground="White" BorderBrush="#666666" BorderThickness="2" Margin="0,0,8,0" Padding="22,10" Click="SaveButton_Click"/>
+                <Button x:Name="CancelButton" Content="CANCEL" Background="#1a1a1a" Foreground="White" BorderBrush="#333333" BorderThickness="1" Padding="22,10" Click="CancelButton_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

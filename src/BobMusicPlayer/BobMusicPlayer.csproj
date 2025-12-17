@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>BobMediaPlayer</RootNamespace>
+    <AssemblyName>BobMusicPlayer</AssemblyName>
+    <Product>BOB Music Player</Product>
+    <Company>BOB Media Player</Company>
+    <Description>A modern music player with library management</Description>
+    <Version>1.3.1</Version>
+    <ApplicationIcon>..\BobMediaPlayer\icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="TagLibSharp" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="..\BobMediaPlayer\icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BobMediaCore\BobMediaCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="UI\App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+  </ItemGroup>
+
+</Project>
