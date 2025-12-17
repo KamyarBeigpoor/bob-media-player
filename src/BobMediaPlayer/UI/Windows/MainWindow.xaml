@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        Title="BOB MEDIA PLAYER" 
-        Height="700" 
+        Title="BOB MEDIA PLAYER"
+        Height="700"
         Width="1000"
         MinHeight="500"
         MinWidth="1100"
@@ -19,10 +19,10 @@
         BorderThickness="0"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">
-    
+
     <!-- WindowChrome for Windows 11 compatibility -->
     <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome 
+        <shell:WindowChrome
             CaptionHeight="0"
             CornerRadius="0"
             GlassFrameThickness="0"
@@ -30,12 +30,12 @@
             ResizeBorderThickness="0"
             UseAeroCaptionButtons="False"/>
     </shell:WindowChrome.WindowChrome>
-    
+
     <Window.InputBindings>
         <KeyBinding Key="F11" Command="{Binding ToggleFullscreenCommand}"/>
         <KeyBinding Key="Escape" Command="{Binding ExitFullscreenCommand}"/>
     </Window.InputBindings>
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -44,7 +44,7 @@
 
         <!-- Media Display Area -->
         <Grid Grid.Row="0" x:Name="MediaDisplayGrid">
-            
+
             <!-- Custom Title Bar -->
             <Border x:Name="TitleBar"
                    Background="{StaticResource DarkSecondary}"
@@ -55,15 +55,15 @@
                    Panel.ZIndex="1000"
                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                 <Grid Margin="15,0">
-                    <TextBlock Text="BOB MEDIA PLAYER" 
+                    <TextBlock Text="BOB MEDIA PLAYER"
                               Foreground="{StaticResource AccentColor}"
                               FontSize="11"
                               FontWeight="Bold"
                               FontFamily="Consolas"
                               VerticalAlignment="Center"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button x:Name="LibraryButton" 
-                               Content="[ LIBRARY ]" 
+                        <Button x:Name="LibraryButton"
+                               Content="[ LIBRARY ]"
                                Style="{StaticResource TechButton}"
                                Click="OpenLibrary_Click"
                                Padding="12,8"
@@ -71,8 +71,8 @@
                                FontSize="9"
                                FontFamily="Consolas"
                                IsEnabled="True"/>
-                        <Button x:Name="SettingsButton" 
-                               Content="[ SETTINGS ]" 
+                        <Button x:Name="SettingsButton"
+                               Content="[ SETTINGS ]"
                                Style="{StaticResource TechButton}"
                                Click="ToggleSettings_Click"
                                Padding="12,8"
@@ -80,7 +80,7 @@
                                FontSize="9"
                                FontFamily="Consolas"
                                IsEnabled="True"/>
-                        <Button Content="_" 
+                        <Button Content="_"
                                Style="{StaticResource ModernButton}"
                                Click="Minimize_Click"
                                Padding="8,0"
@@ -89,7 +89,7 @@
                                FontFamily="Consolas"
                                Width="32"
                                Height="32"/>
-                        <Button Content="X" 
+                        <Button Content="X"
                                Style="{StaticResource ModernButton}"
                                Click="Close_Click"
                                Padding="8,0"
@@ -100,7 +100,7 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            
+
             <!-- Settings Bar -->
             <Border x:Name="SettingsBar"
                    Background="{StaticResource DarkTertiary}"
@@ -113,7 +113,7 @@
                    Visibility="Collapsed">
                 <StackPanel Orientation="Horizontal" Margin="15,0" VerticalAlignment="Center">
                     <!-- Playback Speed -->
-                    <TextBlock Text="SPEED:" 
+                    <TextBlock Text="SPEED:"
                               Foreground="{StaticResource AccentColor}"
                               FontSize="10"
                               FontWeight="Bold"
@@ -135,11 +135,11 @@
                         <ComboBoxItem Content="1.5x" Tag="1.5" Style="{StaticResource TechComboBoxItem}"/>
                         <ComboBoxItem Content="2.0x" Tag="2.0" Style="{StaticResource TechComboBoxItem}"/>
                     </ComboBox>
-                    
+
                     <Border Width="1" Background="{StaticResource BorderColor}" Margin="15,0" Height="20"/>
-                    
+
                     <!-- Subtitle Size -->
-                    <TextBlock Text="SUBTITLE SIZE:" 
+                    <TextBlock Text="SUBTITLE SIZE:"
                               Foreground="{StaticResource AccentColor}"
                               FontSize="10"
                               FontWeight="Bold"
@@ -158,38 +158,38 @@
                         <ComboBoxItem Content="LARGE" Tag="42" Style="{StaticResource TechComboBoxItem}"/>
                         <ComboBoxItem Content="XLARGE" Tag="54" Style="{StaticResource TechComboBoxItem}"/>
                     </ComboBox>
-                    
+
                     <Border Width="1" Background="{StaticResource BorderColor}" Margin="15,0" Height="20"/>
-                    
+
                     <!-- Rotation Controls -->
-                    <TextBlock Text="ROTATE:" 
+                    <TextBlock Text="ROTATE:"
                               Foreground="{StaticResource AccentColor}"
                               FontSize="10"
                               FontWeight="Bold"
                               FontFamily="Consolas"
                               VerticalAlignment="Center"
                               Margin="0,0,8,0"/>
-                    <Button Content="↶ 90°" Click="RotateLeft_Click" Style="{StaticResource TechButton}" 
+                    <Button Content="↶ 90°" Click="RotateLeft_Click" Style="{StaticResource TechButton}"
                            Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
-                    <Button Content="↷ 90°" Click="RotateRight_Click" Style="{StaticResource TechButton}" 
+                    <Button Content="↷ 90°" Click="RotateRight_Click" Style="{StaticResource TechButton}"
                            Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
-                    <Button Content="RESET" Click="RotateReset_Click" Style="{StaticResource TechButton}" 
+                    <Button Content="RESET" Click="RotateReset_Click" Style="{StaticResource TechButton}"
                            Padding="8,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
-                    
+
                     <Border Width="1" Background="{StaticResource BorderColor}" Margin="15,0" Height="20"/>
-                    
+
                     <!-- Toggle Settings Button -->
-                    <Button Content="[ CLOSE ]" Click="ToggleSettings_Click" Style="{StaticResource TechButton}" 
+                    <Button Content="[ CLOSE ]" Click="ToggleSettings_Click" Style="{StaticResource TechButton}"
                            Padding="12,4" Margin="2" FontSize="9" FontFamily="Consolas"/>
                 </StackPanel>
             </Border>
-            
+
             <!-- Video/Image Display -->
             <Grid x:Name="VideoContainer" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5" MouseRightButtonDown="MediaContainer_MouseRightButtonDown">
                 <Grid.LayoutTransform>
                     <RotateTransform x:Name="VideoRotateTransform" Angle="0"/>
                 </Grid.LayoutTransform>
-                <MediaElement x:Name="VideoPlayer" 
+                <MediaElement x:Name="VideoPlayer"
                              LoadedBehavior="Manual"
                              UnloadedBehavior="Stop"
                              Stretch="Uniform"
@@ -200,19 +200,19 @@
                              HorizontalAlignment="Center"
                              VerticalAlignment="Center"/>
             </Grid>
-            
+
             <Grid x:Name="ImageContainer" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5" MouseRightButtonDown="MediaContainer_MouseRightButtonDown">
                 <Grid.LayoutTransform>
                     <RotateTransform x:Name="ImageRotateTransform" Angle="0"/>
                 </Grid.LayoutTransform>
-                <Image x:Name="ImageViewer" 
+                <Image x:Name="ImageViewer"
                       Stretch="Uniform"
                       Visibility="Visible"
                       MouseLeftButtonDown="Media_DoubleClick"
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"/>
             </Grid>
-            
+
             <Border x:Name="OSDPanel"
                    Background="#CC000000"
                    CornerRadius="0"
@@ -228,8 +228,8 @@
                           FontFamily="Consolas"
                           FontWeight="Bold"/>
             </Border>
-            
-    
+
+
             <Border x:Name="SubtitlePanel"
                    Background="#CC000000"
                    CornerRadius="0"
@@ -250,37 +250,37 @@
             </Border>
 
             <!-- Welcome Screen -->
-            <Border x:Name="WelcomeScreen" 
+            <Border x:Name="WelcomeScreen"
                    Background="{StaticResource DarkBackground}"
                    Visibility="Visible">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                     <Border BorderBrush="{StaticResource BorderHighlight}" BorderThickness="3" Padding="25" CornerRadius="0" Margin="0,0,0,25">
-                        <TextBlock Text="♪" 
-                                  FontSize="70" 
+                        <TextBlock Text="♪"
+                                  FontSize="70"
                                   FontFamily="Segoe UI Symbol"
                                   Foreground="{StaticResource AccentColor}"
                                   HorizontalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="BOB MEDIA PLAYER" 
-                              FontSize="36" 
+                    <TextBlock Text="BOB MEDIA PLAYER"
+                              FontSize="36"
                               FontWeight="Bold"
                               FontFamily="Consolas"
                               Foreground="{StaticResource TextPrimary}"
                               HorizontalAlignment="Center"
                               Margin="0,0,0,8"/>
-                    <TextBlock Text="v1.3.1" 
-                              FontSize="11" 
+                    <TextBlock Text="alpha 2.0"
+                              FontSize="11"
                               FontFamily="Consolas"
                               Foreground="{StaticResource AccentColor}"
                               HorizontalAlignment="Center"
                               Margin="0,0,0,30"/>
-                    <TextBlock Text="DROP MEDIA FILES OR CLICK OPEN" 
-                              FontSize="12" 
+                    <TextBlock Text="DROP MEDIA FILES OR CLICK OPEN"
+                              FontSize="12"
                               FontFamily="Consolas"
                               Foreground="{StaticResource TextSecondary}"
                               HorizontalAlignment="Center"
                               Margin="0,0,0,35"/>
-                    <Button Content="[ OPEN MEDIA FILE ]" 
+                    <Button Content="[ OPEN MEDIA FILE ]"
                            Style="{StaticResource PlayButton}"
                            Click="OpenFile_Click"
                            Padding="35,14"
@@ -291,7 +291,7 @@
 
         <!-- Control Panel -->
         <Border Grid.Row="1"
-               x:Name="ControlPanel" 
+               x:Name="ControlPanel"
                Background="{StaticResource DarkSecondary}"
                BorderBrush="{StaticResource BorderHighlight}"
                BorderThickness="0,2,0,0"
@@ -311,9 +311,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock x:Name="CurrentTimeText" 
+                    <TextBlock x:Name="CurrentTimeText"
                               Grid.Column="0"
-                              Text="00:00" 
+                              Text="00:00"
                               Foreground="{StaticResource TextSecondary}"
                               VerticalAlignment="Center"
                               Margin="0,0,18,0"
@@ -321,9 +321,9 @@
                               FontSize="13"
                               FontWeight="SemiBold"/>
 
-                    <Slider x:Name="TimelineSlider" 
+                    <Slider x:Name="TimelineSlider"
                            Grid.Column="1"
-                           Minimum="0" 
+                           Minimum="0"
                            Maximum="100"
                            Style="{StaticResource niceslide}"
                            VerticalAlignment="Center"
@@ -332,9 +332,9 @@
                            ValueChanged="TimelineSlider_ValueChanged"
                            PreviewMouseLeftButtonDown="TimelineSlider_MouseDown"/>
 
-                    <TextBlock x:Name="TotalTimeText" 
+                    <TextBlock x:Name="TotalTimeText"
                               Grid.Column="2"
-                              Text="00:00" 
+                              Text="00:00"
                               Foreground="{StaticResource TextSecondary}"
                               VerticalAlignment="Center"
                               Margin="18,0,0,0"
@@ -344,9 +344,9 @@
                 </Grid>
 
                 <!-- Media Info -->
-                <TextBlock x:Name="MediaInfoText" 
+                <TextBlock x:Name="MediaInfoText"
                           Grid.Row="1"
-                          Text="No media loaded" 
+                          Text="No media loaded"
                           Foreground="{StaticResource TextPrimary}"
                           FontSize="13"
                           FontWeight="SemiBold"
@@ -355,19 +355,19 @@
                           TextTrimming="CharacterEllipsis"/>
 
                 <!-- Control Buttons -->
-                <StackPanel x:Name="ControlButtonsPanel" Grid.Row="2" 
-                           Orientation="Horizontal" 
+                <StackPanel x:Name="ControlButtonsPanel" Grid.Row="2"
+                           Orientation="Horizontal"
                            HorizontalAlignment="Center">
-                    <Button x:Name="OpenButton" 
-                           Content="[ OPEN ]" 
+                    <Button x:Name="OpenButton"
+                           Content="[ OPEN ]"
                            Style="{StaticResource TechButton}"
                            Click="OpenFile_Click"
                            Margin="6"
                            Padding="20,11"
                            FontSize="11"/>
-                    
-                    <Button x:Name="PreviousButton" 
-                           Content="[ PREVIOUS ]" 
+
+                    <Button x:Name="PreviousButton"
+                           Content="[ PREVIOUS ]"
                            Style="{StaticResource TechButton}"
                            Click="Previous_Click"
                            Margin="6"
@@ -375,9 +375,9 @@
                            FontFamily="Consolas"
                            FontSize="11"
                            IsEnabled="False"/>
-                    
-                    <Button x:Name="JumpBackButton" 
-                           Content="[ -10s ]" 
+
+                    <Button x:Name="JumpBackButton"
+                           Content="[ -10s ]"
                            Style="{StaticResource TechButton}"
                            Click="JumpBack_Click"
                            Margin="6"
@@ -385,9 +385,9 @@
                            FontFamily="Consolas"
                            FontSize="11"
                            IsEnabled="False"/>
-                    
-                    <Button x:Name="PlayPauseButton" 
-                           Content="[ PLAY ]" 
+
+                    <Button x:Name="PlayPauseButton"
+                           Content="[ PLAY ]"
                            Style="{StaticResource PlayButton}"
                            Click="PlayPause_Click"
                            Margin="6"
@@ -395,9 +395,9 @@
                            FontFamily="Consolas"
                            FontSize="11"
                            IsEnabled="False"/>
-                    
-                    <Button x:Name="JumpForwardButton" 
-                           Content="[ +10s ]" 
+
+                    <Button x:Name="JumpForwardButton"
+                           Content="[ +10s ]"
                            Style="{StaticResource TechButton}"
                            Click="JumpForward_Click"
                            Margin="6"
@@ -405,9 +405,9 @@
                            FontFamily="Consolas"
                            FontSize="11"
                            IsEnabled="False"/>
-                    
-                    <Button x:Name="NextButton" 
-                           Content="[ NEXT ]" 
+
+                    <Button x:Name="NextButton"
+                           Content="[ NEXT ]"
                            Style="{StaticResource TechButton}"
                            Click="Next_Click"
                            Margin="6"
@@ -416,12 +416,12 @@
                            FontSize="11"
                            IsEnabled="False"/>
 
-                    <Border x:Name="SeparatorAfterNav" Width="2" 
+                    <Border x:Name="SeparatorAfterNav" Width="2"
                            Background="{StaticResource BorderHighlight}"
                            Margin="18,0"/>
-                    
-                    <Button x:Name="FullscreenButton" 
-                           Content="⛶" 
+
+                    <Button x:Name="FullscreenButton"
+                           Content="⛶"
                            Style="{StaticResource TechButton}"
                            Click="Fullscreen_Click"
                            Margin="6"
@@ -429,9 +429,9 @@
                            FontFamily="Segoe UI Symbol"
                            FontSize="16"
                            IsEnabled="False"/>
-                    
-                    <Button x:Name="SubtitleButton" 
-                           Content="[ SUBTITLE ]" 
+
+                    <Button x:Name="SubtitleButton"
+                           Content="[ SUBTITLE ]"
                            Style="{StaticResource TechButton}"
                            Click="Subtitle_Click"
                            Margin="6"
@@ -440,22 +440,22 @@
                            FontSize="11"
                            IsEnabled="False"/>
 
-                    <Border x:Name="SeparatorBeforeVolume" Width="2" 
+                    <Border x:Name="SeparatorBeforeVolume" Width="2"
                            Background="{StaticResource BorderHighlight}"
                            Margin="18,0"/>
 
                     <StackPanel x:Name="VolumePanel" Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
-                        <TextBlock Text="VOL" 
-                                  FontSize="11" 
+                        <TextBlock Text="VOL"
+                                  FontSize="11"
                                   FontFamily="Consolas"
                                   FontWeight="Bold"
                                   Foreground="{StaticResource TextSecondary}"
                                   VerticalAlignment="Center"
                                   Margin="0,0,10,0"/>
-                        <Slider x:Name="VolumeSlider" 
-                               Width="120" 
-                               Minimum="0" 
-                               Maximum="100" 
+                        <Slider x:Name="VolumeSlider"
+                               Width="120"
+                               Minimum="0"
+                               Maximum="100"
                                Value="50"
                                VerticalAlignment="Center"
                                ValueChanged="VolumeSlider_ValueChanged"
