@@ -11,7 +11,7 @@
     <Product>BOB Music Player</Product>
     <Company>BOB Media Player</Company>
     <Description>A modern music player with library management</Description>
-    <Version>alpha 2.0</Version>
+    <Version>2.0-alpha</Version>
     <ApplicationIcon>..\BobMediaPlayer\icon.ico</ApplicationIcon>
   </PropertyGroup>
 
